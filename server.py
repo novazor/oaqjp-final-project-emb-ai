@@ -1,21 +1,21 @@
 from flask import Flask, request, render_template
-from EmotionDetection.emotion_detection import emotion_detector  # Ensure correct import path
+from EmotionDetection.emotion_detection import emotion_detector
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('index.html')  # Make sure 'index.html' is in the 'templates' folder
+    return render_template('index.html') 
 
 @app.route('/emotionDetector', methods=['GET', 'POST'])
 def analyze():
-    # Extract the text to analyze from the form or query
+    # Asking for input
     statement = request.form.get('statement', '') if request.method == 'POST' else request.args.get('statement', '')
 
-    # Use the emotion detector function to get the response
+    # Running emotion detector on input
     result = emotion_detector(statement)
 
-    # Prepare the formatted output string according to the example provided
+    # Formatting output
     response_str = (
         f"For the given statement, the system response is 'anger': {result['anger']}, "
         f"'disgust': {result['disgust']}, 'fear': {result['fear']}, "
@@ -23,7 +23,6 @@ def analyze():
         f"The dominant emotion is {result['dominant_emotion']}."
     )
 
-    # Return the formatted response string
     return response_str
 
 if __name__ == '__main__':
