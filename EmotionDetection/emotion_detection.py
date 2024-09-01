@@ -1,39 +1,69 @@
-import requests
 import json
+import requests
 
 def emotion_detector(text_to_analyze):
     url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
     header = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
     myobj = {"raw_document": {"text": text_to_analyze}}
-    
-    response = requests.post(url, json=myobj, headers=header)
-    response_dict = json.loads(response.text)
-    
-    emotions = response_dict['emotionPredictions'][0]['emotion']
-    anger_score = emotions['anger']
-    disgust_score = emotions['disgust']
-    fear_score = emotions['fear']
-    joy_score = emotions['joy']
-    sadness_score = emotions['sadness']
-    
-    scores = {
-        'anger': anger_score,
-        'disgust': disgust_score,
-        'fear': fear_score,
-        'joy': joy_score,
-        'sadness': sadness_score
-    }
-    dominant_emotion = max(scores, key=scores.get)
-    
-    return {
-        'anger': anger_score,
-        'disgust': disgust_score,
-        'fear': fear_score,
-        'joy': joy_score,
-        'sadness': sadness_score,
-        'dominant_emotion': dominant_emotion
-    }
+
+    try:
+        # POST request
+        response = requests.post(url, json=myobj, headers=header)
+
+        # Check status code
+        if response.status_code == 400: 
+            return {
+                'anger': None,
+                'disgust': None,
+                'fear': None,
+                'joy': None,
+                'sadness': None,
+                'dominant_emotion': None
+            }
+        
+        response_dict = response.json()
+        emotions = response_dict['emotionPredictions'][0]['emotion']
+        anger_score = emotions['anger']
+        disgust_score = emotions['disgust']
+        fear_score = emotions['fear']
+        joy_score = emotions['joy']
+        sadness_score = emotions['sadness']
+
+        # Find the dominant emotion
+        scores = {
+            'anger': anger_score,
+            'disgust': disgust_score,
+            'fear': fear_score,
+            'joy': joy_score,
+            'sadness': sadness_score
+        }
+        dominant_emotion = max(scores, key=scores.get)
+
+        return {
+            'anger': anger_score,
+            'disgust': disgust_score,
+            'fear': fear_score,
+            'joy': joy_score,
+            'sadness': sadness_score,
+            'dominant_emotion': dominant_emotion
+        }
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        # Return the same dictionary for unexpected errors
+        return {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None
+        }
+
 
 if __name__ == "__main__":
     result = emotion_detector("I love this new technology")
-    print(result)
+    testnull = emotion_detector("")
+    print(f"Output on normal query: {result}")
+    print(f"")
+    print(f"Output on no query: {testnull}")
